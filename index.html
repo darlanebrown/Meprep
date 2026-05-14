@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MePrep | Meal Prep Assistant</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: #f7f7f7;
+        color: #333;
+        line-height: 1.6;
+      }
+
+      header {
+        background: #ffffff;
+        padding: 18px 8%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .logo {
+        font-size: 28px;
+        font-weight: bold;
+        color: #3a7d44;
+      }
+
+      nav a {
+        margin-left: 20px;
+        text-decoration: none;
+        color: #333;
+        font-weight: bold;
+      }
+
+      nav a:hover {
+        color: #3a7d44;
+      }
+
+      .hero {
+        padding: 80px 8%;
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 40px;
+        align-items: center;
+      }
+
+      .hero h1 {
+        font-size: 52px;
+        line-height: 1.1;
+        margin-bottom: 18px;
+        color: #222831;
+      }
+
+      .hero p {
+        font-size: 20px;
+        margin-bottom: 28px;
+        color: #555;
+      }
+
+      .btn {
+        display: inline-block;
+        background: #3a7d44;
+        color: #ffffff;
+        padding: 14px 24px;
+        border-radius: 14px;
+        text-decoration: none;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s ease;
+      }
+
+      .btn:hover {
+        background: #2f6537;
+        transform: translateY(-2px);
+      }
+
+      .danger-btn {
+        background: #222831;
+        padding: 8px 12px;
+        border-radius: 10px;
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin-left: 8px;
+      }
+
+      .hero-card,
+      .card,
+      .feature-box {
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .hero-card {
+        padding: 30px;
+        border-radius: 28px;
+      }
+
+      .hero-card img {
+        width: 100%;
+        border-radius: 22px;
+        margin-bottom: 20px;
+      }
+
+      section {
+        padding: 50px 8%;
+      }
+
+      .section-title {
+        font-size: 34px;
+        margin-bottom: 20px;
+        color: #222831;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+      }
+
+      .card {
+        padding: 24px;
+      }
+
+      .card h3 {
+        margin-bottom: 12px;
+        color: #3a7d44;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0 14px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        font-size: 15px;
+        font-family: Arial, sans-serif;
+      }
+
+      textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+
+      .input-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .mic {
+        background: #f4a261;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 46px;
+        height: 46px;
+        font-size: 20px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      .mic:hover {
+        background: #dd8f4d;
+      }
+
+      .small-note {
+        color: #666;
+        font-size: 14px;
+        margin-top: 8px;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .tag {
+        background: #eef3ef;
+        color: #2f5d35;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-weight: bold;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tag button {
+        border: none;
+        background: transparent;
+        color: #2f5d35;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .recipe-card p {
+        margin-bottom: 10px;
+      }
+
+      .shopping ul {
+        margin-top: 16px;
+      }
+
+      .shopping li {
+        list-style: none;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .shopping span {
+        cursor: pointer;
+      }
+
+      .completed {
+        text-decoration: line-through;
+        color: #888;
+      }
+
+      .future {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+      }
+
+      .feature-box {
+        padding: 22px;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      footer {
+        background: #222831;
+        color: white;
+        text-align: center;
+        padding: 24px;
+        margin-top: 40px;
+      }
+
+      @media (max-width: 850px) {
+        header {
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        nav a {
+          margin: 0 8px;
+          font-size: 14px;
+        }
+
+        .hero {
+          grid-template-columns: 1fr;
+          padding-top: 50px;
+        }
+
+        .hero h1 {
+          font-size: 38px;
+        }
+
+        .grid,
+        .future {
+          grid-template-columns: 1fr;
+        }
+
+        .input-row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .mic {
+          width: 100%;
+          border-radius: 14px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="logo">MePrep 🍴</div>
+      <nav>
+        <a href="#recipes">Recipes</a>
+        <a href="#groceries">Groceries</a>
+        <a href="#shopping">Shopping List</a>
+        <a href="#future">Future</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <h1>Meal Prep Made Simple</h1>
+          <p>
+            Organize groceries, save recipes, and build your shopping list using
+            simple voice-assisted tools.
+          </p>
+          <a class="btn" href="#groceries">Start Adding Groceries</a>
+        </div>
+
+        <div class="hero-card">
+          <img
+            src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=900&q=80"
+            alt="Healthy meal prep bowl"
+          />
+          <h3>Today’s Prep Idea 🔥</h3>
+          <p><strong id="prep-idea">Loading meal idea...</strong></p>
+          <p id="prep-description">Finding a prep idea for you.</p>
+        </div>
+      </section>
+
+      <section id="recipes">
+        <h2 class="section-title">Digital Recipe Cards</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>Create Recipe</h3>
+            <input id="recipe-name" type="text" placeholder="Recipe name" />
+            <textarea
+              id="recipe-ingredients"
+              placeholder="Ingredients"
+            ></textarea>
+            <textarea
+              id="recipe-instructions"
+              placeholder="Instructions"
+            ></textarea>
+            <div class="input-row">
+              <button class="mic" onclick="startVoiceInput('recipe')">
+                🎤
+              </button>
+              <button class="btn" onclick="saveRecipe()">Save Recipe</button>
+            </div>
+            <p class="small-note">
+              Voice tip: say the recipe name, ingredients, or instructions after
+              clicking the microphone.
+            </p>
+          </div>
+
+          <div id="recipe-list" class="grid" style="grid-column: span 2"></div>
+        </div>
+      </section>
+
+      <section id="groceries">
+        <h2 class="section-title">Groceries in Your House</h2>
+        <div class="card">
+          <h3>Add Grocery Item</h3>
+          <div class="input-row">
+            <input
+              id="grocery-input"
+              type="text"
+              placeholder="Type grocery item here"
+            />
+            <button class="btn" onclick="addGrocery()">Add</button>
+            <button class="mic" onclick="startVoiceInput('grocery')">🎤</button>
+          </div>
+          <p class="small-note">Example: eggs, chicken, spinach, rice</p>
+          <div id="grocery-list" class="tags"></div>
+        </div>
+      </section>
+
+      <section id="shopping">
+        <h2 class="section-title">Grocery Shopping List</h2>
+        <div class="card shopping">
+          <div class="input-row">
+            <input
+              id="shopping-input"
+              type="text"
+              placeholder="Add missing item"
+            />
+            <button class="btn" onclick="addShoppingItem()">Add to List</button>
+            <button class="mic" onclick="startVoiceInput('shopping')">
+              🎤
+            </button>
+          </div>
+          <ul id="shopping-list"></ul>
+        </div>
+      </section>
+
+      <section id="future">
+        <h2 class="section-title">Future Features</h2>
+        <div class="future">
+          <div class="feature-box">🔔 Expiration Alerts</div>
+          <div class="feature-box">🧾 Receipt Scanner</div>
+          <div class="feature-box">📅 Meal Prep Reminders</div>
+          <div class="feature-box">🛒 Store Sale API</div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Built with HTML, CSS, Vanilla JavaScript, and AI Assistance • Deployed on
+      GitHub Pages or Vercel
+    </footer>
+
+    <script>
+      const prepIdeas = [
+        {
+          title: "Teriyaki Chicken Bowl",
+          description:
+            "High-protein meal prep idea using chicken, rice, and vegetables.",
+        },
+        {
+          title: "Steak & Rice Power Bowl",
+          description: "A filling meal prep idea for busy weekdays.",
+        },
+        {
+          title: "Mediterranean Chicken Wrap",
+          description: "Fresh, quick, and easy to prep ahead.",
+        },
+        {
+          title: "Salmon Avocado Rice Bowl",
+          description: "Balanced meal with protein, healthy fats, and carbs.",
+        },
+      ];
+
+      let groceries = ["Eggs", "Milk", "Chicken", "Rice", "Spinach"];
+      let shoppingItems = ["Bread", "Cheese", "Apples"];
+      let recipes = [
+        {
+          name: "Chicken Alfredo",
+          ingredients: "Chicken, pasta, parmesan, cream",
+          instructions: "Cook pasta, grill chicken, mix sauce, and combine.",
+        },
+        {
+          name: "Veggie Rice Bowl",
+          ingredients: "Rice, spinach, carrots, eggs",
+          instructions: "Cook rice, sauté vegetables, and top with egg.",
+        },
+      ];
+
+      function showRandomPrepIdea() {
+        const randomPrep =
+          prepIdeas[Math.floor(Math.random() * prepIdeas.length)];
+        document.getElementById("prep-idea").textContent = randomPrep.title;
+        document.getElementById("prep-description").textContent =
+          randomPrep.description;
+      }
+
+      function renderGroceries() {
+        const groceryList = document.getElementById("grocery-list");
+        groceryList.innerHTML = "";
+
+        groceries.forEach((item, index) => {
+          const tag = document.createElement("span");
+          tag.className = "tag";
+          tag.innerHTML = `${item} <button onclick="removeGrocery(${index})">x</button>`;
+          groceryList.appendChild(tag);
+        });
+      }
+
+      function addGrocery() {
+        const input = document.getElementById("grocery-input");
+        const item = input.value.trim();
+
+        if (item === "") {
+          alert("Please enter a grocery item.");
+          return;
+        }
+
+        groceries.push(item);
+        input.value = "";
+        renderGroceries();
+      }
+
+      function removeGrocery(index) {
+        groceries.splice(index, 1);
+        renderGroceries();
+      }
+
+      function renderShoppingList() {
+        const shoppingList = document.getElementById("shopping-list");
+        shoppingList.innerHTML = "";
+
+        shoppingItems.forEach((item, index) => {
+          const li = document.createElement("li");
+
+          li.innerHTML = `
+          <span onclick="toggleComplete(this)">☐ ${item}</span>
+          <button class="danger-btn" onclick="removeShoppingItem(${index})">Remove</button>
+        `;
+
+          shoppingList.appendChild(li);
+        });
+      }
+
+      function addShoppingItem() {
+        const input = document.getElementById("shopping-input");
+        const item = input.value.trim();
+
+        if (item === "") {
+          alert("Please enter a shopping item.");
+          return;
+        }
+
+        shoppingItems.push(item);
+        input.value = "";
+        renderShoppingList();
+      }
+
+      function removeShoppingItem(index) {
+        shoppingItems.splice(index, 1);
+        renderShoppingList();
+      }
+
+      function toggleComplete(element) {
+        element.classList.toggle("completed");
+
+        if (element.textContent.includes("☐")) {
+          element.textContent = element.textContent.replace("☐", "☑");
+        } else {
+          element.textContent = element.textContent.replace("☑", "☐");
+        }
+      }
+
+      function renderRecipes() {
+        const recipeList = document.getElementById("recipe-list");
+        recipeList.innerHTML = "";
+
+        recipes.forEach((recipe, index) => {
+          const card = document.createElement("div");
+          card.className = "card recipe-card";
+
+          card.innerHTML = `
+          <h3>${recipe.name}</h3>
+          <p><strong>Ingredients:</strong> ${recipe.ingredients}</p>
+          <p><strong>Instructions:</strong> ${recipe.instructions}</p>
+          <button class="danger-btn" onclick="removeRecipe(${index})">Remove</button>
+        `;
+
+          recipeList.appendChild(card);
+        });
+      }
+
+      function saveRecipe() {
+        const nameInput = document.getElementById("recipe-name");
+        const ingredientsInput = document.getElementById("recipe-ingredients");
+        const instructionsInput = document.getElementById(
+          "recipe-instructions",
+        );
+
+        const name = nameInput.value.trim();
+        const ingredients = ingredientsInput.value.trim();
+        const instructions = instructionsInput.value.trim();
+
+        if (name === "" || ingredients === "" || instructions === "") {
+          alert(
+            "Please fill in the recipe name, ingredients, and instructions.",
+          );
+          return;
+        }
+
+        recipes.push({
+          name: name,
+          ingredients: ingredients,
+          instructions: instructions,
+        });
+
+        nameInput.value = "";
+        ingredientsInput.value = "";
+        instructionsInput.value = "";
+
+        renderRecipes();
+      }
+
+      function removeRecipe(index) {
+        recipes.splice(index, 1);
+        renderRecipes();
+      }
+
+      function startVoiceInput(type) {
+        const SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+          alert(
+            "Voice input is not supported in this browser. Try using Google Chrome.",
+          );
+          return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = "en-US";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.start();
+
+        recognition.onresult = function (event) {
+          const speechText = event.results[0][0].transcript;
+
+          if (type === "grocery") {
+            document.getElementById("grocery-input").value = speechText;
+            addGrocery();
+          }
+
+          if (type === "shopping") {
+            document.getElementById("shopping-input").value = speechText;
+            addShoppingItem();
+          }
+
+          if (type === "recipe") {
+            const recipeName = document.getElementById("recipe-name");
+            const recipeIngredients =
+              document.getElementById("recipe-ingredients");
+            const recipeInstructions = document.getElementById(
+              "recipe-instructions",
+            );
+
+            if (recipeName.value.trim() === "") {
+              recipeName.value = speechText;
+            } else if (recipeIngredients.value.trim() === "") {
+              recipeIngredients.value = speechText;
+            } else {
+              recipeInstructions.value = speechText;
+            }
+          }
+        };
+
+        recognition.onerror = function () {
+          alert("Sorry, I could not hear you clearly. Please try again.");
+        };
+      }
+
+      document
+        .getElementById("grocery-input")
+        .addEventListener("keydown", function (event) {
+          if (event.key === "Enter") {
+            addGrocery();
+          }
+        });
+
+      document
+        .getElementById("shopping-input")
+        .addEventListener("keydown", function (event) {
+          if (event.key === "Enter") {
+            addShoppingItem();
+          }
+        });
+
+      showRandomPrepIdea();
+      renderGroceries();
+      renderShoppingList();
+      renderRecipes();
+    </script>
+  </body>
+</html>
