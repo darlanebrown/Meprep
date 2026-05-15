@@ -92,7 +92,7 @@
       }
 
       .danger-btn {
-        background: #222831;
+        background: #8b5e3c;
         padding: 8px 12px;
         border-radius: 10px;
         color: white;
@@ -184,6 +184,26 @@
         background: #dd8f4d;
       }
 
+      .mic.listening {
+        background: #d62828;
+        animation: pulse 1s infinite;
+        transform: scale(1.08);
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(214, 40, 40, 0.7);
+        }
+
+        70% {
+          box-shadow: 0 0 0 12px rgba(214, 40, 40, 0);
+        }
+
+        100% {
+          box-shadow: 0 0 0 0 rgba(214, 40, 40, 0);
+        }
+      }
+
       .small-note {
         color: #666;
         font-size: 14px;
@@ -218,6 +238,31 @@
 
       .recipe-card p {
         margin-bottom: 10px;
+      }
+
+      .recipe-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+
+      .missing-note {
+        margin-top: 12px;
+        padding: 10px;
+        border-radius: 12px;
+        background: #fff3e0;
+        color: #7a4b00;
+        font-size: 14px;
+      }
+
+      .success-note {
+        margin-top: 12px;
+        padding: 10px;
+        border-radius: 12px;
+        background: #eef3ef;
+        color: #2f5d35;
+        font-size: 14px;
       }
 
       .shopping ul {
@@ -262,29 +307,73 @@
         margin-top: 40px;
       }
 
+      .hamburger {
+        display: none;
+        background: #3a7d44;
+        color: white;
+        border: none;
+        font-size: 28px;
+        padding: 8px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      .fade-card {
+        opacity: 0;
+        transform: translateY(30px);
+        transition:
+          opacity 0.6s ease,
+          transform 0.6s ease;
+      }
+
+      .fade-card.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
       @media (max-width: 850px) {
         header {
-          flex-direction: column;
-          gap: 12px;
+          flex-direction: row;
+          flex-wrap: wrap;
+          padding: 16px 5%;
         }
 
-        nav a {
-          margin: 0 8px;
-          font-size: 14px;
+        .hamburger {
+          display: block;
+        }
+
+        #nav-menu {
+          display: none;
+          width: 100%;
+          flex-direction: column;
+          margin-top: 15px;
+        }
+
+        #nav-menu.active {
+          display: flex;
+        }
+
+        #nav-menu a {
+          margin: 10px 0;
+          font-size: 16px;
         }
 
         .hero {
           grid-template-columns: 1fr;
-          padding-top: 50px;
+          padding: 50px 5%;
         }
 
         .hero h1 {
-          font-size: 38px;
+          font-size: 36px;
         }
 
         .grid,
         .future {
           grid-template-columns: 1fr;
+        }
+
+        #recipe-list {
+          grid-column: span 1 !important;
         }
 
         .input-row {
@@ -296,6 +385,10 @@
           width: 100%;
           border-radius: 14px;
         }
+
+        section {
+          padding: 40px 5%;
+        }
       }
     </style>
   </head>
@@ -303,7 +396,16 @@
   <body>
     <header>
       <div class="logo">MePrep 🍴</div>
-      <nav>
+
+      <button
+        class="hamburger"
+        onclick="toggleMenu()"
+        aria-label="Open navigation menu"
+      >
+        ☰
+      </button>
+
+      <nav id="nav-menu">
         <a href="#recipes">Recipes</a>
         <a href="#groceries">Groceries</a>
         <a href="#shopping">Shopping List</a>
@@ -338,7 +440,12 @@
         <div class="grid">
           <div class="card">
             <h3>Create Recipe</h3>
-            <input id="recipe-name" type="text" placeholder="Recipe name" />
+            <input
+              id="recipe-name"
+              type="text"
+              placeholder="Recipe name"
+              autocomplete="off"
+            />
             <textarea
               id="recipe-ingredients"
               placeholder="Ingredients"
@@ -348,7 +455,11 @@
               placeholder="Instructions"
             ></textarea>
             <div class="input-row">
-              <button class="mic" onclick="startVoiceInput('recipe')">
+              <button
+                class="mic"
+                id="recipe-mic"
+                onclick="startVoiceInput('recipe', 'recipe-mic')"
+              >
                 🎤
               </button>
               <button class="btn" onclick="saveRecipe()">Save Recipe</button>
@@ -372,9 +483,16 @@
               id="grocery-input"
               type="text"
               placeholder="Type grocery item here"
+              autofocus
             />
             <button class="btn" onclick="addGrocery()">Add</button>
-            <button class="mic" onclick="startVoiceInput('grocery')">🎤</button>
+            <button
+              class="mic"
+              id="grocery-mic"
+              onclick="startVoiceInput('grocery', 'grocery-mic')"
+            >
+              🎤
+            </button>
           </div>
           <p class="small-note">Example: eggs, chicken, spinach, rice</p>
           <div id="grocery-list" class="tags"></div>
@@ -391,7 +509,11 @@
               placeholder="Add missing item"
             />
             <button class="btn" onclick="addShoppingItem()">Add to List</button>
-            <button class="mic" onclick="startVoiceInput('shopping')">
+            <button
+              class="mic"
+              id="shopping-mic"
+              onclick="startVoiceInput('shopping', 'shopping-mic')"
+            >
               🎤
             </button>
           </div>
@@ -436,9 +558,17 @@
         },
       ];
 
-      let groceries = ["Eggs", "Milk", "Chicken", "Rice", "Spinach"];
-      let shoppingItems = ["Bread", "Cheese", "Apples"];
-      let recipes = [
+      let groceries = JSON.parse(localStorage.getItem("meprepGroceries")) || [
+        "Eggs",
+        "Milk",
+        "Chicken",
+        "Rice",
+        "Spinach",
+      ];
+      let shoppingItems = JSON.parse(
+        localStorage.getItem("meprepShoppingItems"),
+      ) || ["Bread", "Cheese", "Apples"];
+      let recipes = JSON.parse(localStorage.getItem("meprepRecipes")) || [
         {
           name: "Chicken Alfredo",
           ingredients: "Chicken, pasta, parmesan, cream",
@@ -450,6 +580,15 @@
           instructions: "Cook rice, sauté vegetables, and top with egg.",
         },
       ];
+
+      function saveToLocalStorage() {
+        localStorage.setItem("meprepGroceries", JSON.stringify(groceries));
+        localStorage.setItem(
+          "meprepShoppingItems",
+          JSON.stringify(shoppingItems),
+        );
+        localStorage.setItem("meprepRecipes", JSON.stringify(recipes));
+      }
 
       function showRandomPrepIdea() {
         const randomPrep =
@@ -471,6 +610,20 @@
         });
       }
 
+      function focusNextInput(currentInput, nextInputId) {
+        currentInput.addEventListener("keydown", function (event) {
+          if (event.key === "Enter") {
+            event.preventDefault();
+
+            const nextInput = document.getElementById(nextInputId);
+
+            if (nextInput) {
+              nextInput.focus();
+            }
+          }
+        });
+      }
+
       function addGrocery() {
         const input = document.getElementById("grocery-input");
         const item = input.value.trim();
@@ -482,11 +635,13 @@
 
         groceries.push(item);
         input.value = "";
+        saveToLocalStorage();
         renderGroceries();
       }
 
       function removeGrocery(index) {
         groceries.splice(index, 1);
+        saveToLocalStorage();
         renderGroceries();
       }
 
@@ -496,12 +651,10 @@
 
         shoppingItems.forEach((item, index) => {
           const li = document.createElement("li");
-
           li.innerHTML = `
           <span onclick="toggleComplete(this)">☐ ${item}</span>
           <button class="danger-btn" onclick="removeShoppingItem(${index})">Remove</button>
         `;
-
           shoppingList.appendChild(li);
         });
       }
@@ -517,11 +670,13 @@
 
         shoppingItems.push(item);
         input.value = "";
+        saveToLocalStorage();
         renderShoppingList();
       }
 
       function removeShoppingItem(index) {
         shoppingItems.splice(index, 1);
+        saveToLocalStorage();
         renderShoppingList();
       }
 
@@ -542,16 +697,65 @@
         recipes.forEach((recipe, index) => {
           const card = document.createElement("div");
           card.className = "card recipe-card";
-
           card.innerHTML = `
           <h3>${recipe.name}</h3>
           <p><strong>Ingredients:</strong> ${recipe.ingredients}</p>
           <p><strong>Instructions:</strong> ${recipe.instructions}</p>
-          <button class="danger-btn" onclick="removeRecipe(${index})">Remove</button>
+          <div class="recipe-actions">
+            <button class="btn" onclick="cookRecipe(${index})">Cook Recipe</button>
+            <button class="danger-btn" onclick="removeRecipe(${index})">Remove</button>
+          </div>
+          <div id="recipe-status-${index}"></div>
         `;
-
           recipeList.appendChild(card);
         });
+      }
+
+      function cleanItem(item) {
+        return item.trim().toLowerCase();
+      }
+
+      function getRecipeIngredients(recipe) {
+        return recipe.ingredients
+          .split(",")
+          .map((ingredient) => ingredient.trim())
+          .filter((ingredient) => ingredient !== "");
+      }
+
+      function cookRecipe(index) {
+        const recipe = recipes[index];
+        const recipeIngredients = getRecipeIngredients(recipe);
+        const groceryItems = groceries.map(cleanItem);
+        const shoppingListItems = shoppingItems.map(cleanItem);
+
+        const missingIngredients = recipeIngredients.filter((ingredient) => {
+          return !groceryItems.includes(cleanItem(ingredient));
+        });
+
+        missingIngredients.forEach((ingredient) => {
+          if (!shoppingListItems.includes(cleanItem(ingredient))) {
+            shoppingItems.push(ingredient);
+          }
+        });
+
+        saveToLocalStorage();
+        renderShoppingList();
+
+        const statusBox = document.getElementById(`recipe-status-${index}`);
+
+        if (missingIngredients.length === 0) {
+          statusBox.innerHTML = `
+          <div class="success-note">
+            You have all ingredients for this recipe.
+          </div>
+        `;
+        } else {
+          statusBox.innerHTML = `
+          <div class="missing-note">
+            Missing ingredients added to shopping list: ${missingIngredients.join(", ")}
+          </div>
+        `;
+        }
       }
 
       function saveRecipe() {
@@ -582,34 +786,46 @@
         ingredientsInput.value = "";
         instructionsInput.value = "";
 
+        saveToLocalStorage();
         renderRecipes();
       }
 
       function removeRecipe(index) {
         recipes.splice(index, 1);
+        saveToLocalStorage();
         renderRecipes();
       }
 
-      function startVoiceInput(type) {
+      function startVoiceInput(type, micId) {
         const SpeechRecognition =
           window.SpeechRecognition || window.webkitSpeechRecognition;
 
         if (!SpeechRecognition) {
           alert(
-            "Voice input is not supported in this browser. Try using Google Chrome.",
+            "Voice input only works in Google Chrome. Also make sure you are using Live Server, not double-clicking the file.",
           );
           return;
         }
 
+        const micButton = document.getElementById(micId);
         const recognition = new SpeechRecognition();
         recognition.lang = "en-US";
         recognition.interimResults = false;
+        recognition.continuous = false;
         recognition.maxAlternatives = 1;
 
         recognition.start();
 
+        micButton.classList.add("listening");
+
+        recognition.onstart = function () {
+          console.log("Microphone is listening...");
+        };
+
         recognition.onresult = function (event) {
+          micButton.classList.remove("listening");
           const speechText = event.results[0][0].transcript;
+          console.log("You said:", speechText);
 
           if (type === "grocery") {
             document.getElementById("grocery-input").value = speechText;
@@ -639,9 +855,45 @@
           }
         };
 
-        recognition.onerror = function () {
-          alert("Sorry, I could not hear you clearly. Please try again.");
+        recognition.onerror = function (event) {
+          micButton.classList.remove("listening");
+          alert(
+            "Microphone error: " +
+              event.error +
+              ". Try Chrome and allow microphone permission.",
+          );
         };
+
+        recognition.onend = function () {
+          micButton.classList.remove("listening");
+        };
+      }
+
+      function toggleMenu() {
+        const navMenu = document.getElementById("nav-menu");
+        navMenu.classList.toggle("active");
+      }
+
+      function setupFadeCards() {
+        const cards = document.querySelectorAll(
+          ".card, .hero-card, .feature-box",
+        );
+
+        cards.forEach((card) => {
+          card.classList.add("fade-card");
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("show");
+            }
+          });
+        });
+
+        cards.forEach((card) => {
+          observer.observe(card);
+        });
       }
 
       document
@@ -660,10 +912,20 @@
           }
         });
 
+      focusNextInput(
+        document.getElementById("recipe-name"),
+        "recipe-ingredients",
+      );
+      focusNextInput(
+        document.getElementById("recipe-ingredients"),
+        "recipe-instructions",
+      );
+
       showRandomPrepIdea();
       renderGroceries();
       renderShoppingList();
       renderRecipes();
+      setupFadeCards();
     </script>
   </body>
 </html>
